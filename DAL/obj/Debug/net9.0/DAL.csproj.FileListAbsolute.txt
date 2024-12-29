@@ -1,0 +1,14 @@
+C:\Users\денис\RiderProjects\OrderSystem\DAL\bin\Debug\net9.0\DAL.deps.json
+C:\Users\денис\RiderProjects\OrderSystem\DAL\bin\Debug\net9.0\DAL.runtimeconfig.json
+C:\Users\денис\RiderProjects\OrderSystem\DAL\bin\Debug\net9.0\DAL.dll
+C:\Users\денис\RiderProjects\OrderSystem\DAL\bin\Debug\net9.0\DAL.pdb
+C:\Users\денис\RiderProjects\OrderSystem\DAL\obj\Debug\net9.0\DAL.csproj.AssemblyReference.cache
+C:\Users\денис\RiderProjects\OrderSystem\DAL\obj\Debug\net9.0\DAL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\денис\RiderProjects\OrderSystem\DAL\obj\Debug\net9.0\DAL.AssemblyInfoInputs.cache
+C:\Users\денис\RiderProjects\OrderSystem\DAL\obj\Debug\net9.0\DAL.AssemblyInfo.cs
+C:\Users\денис\RiderProjects\OrderSystem\DAL\obj\Debug\net9.0\DAL.csproj.CoreCompileInputs.cache
+C:\Users\денис\RiderProjects\OrderSystem\DAL\obj\Debug\net9.0\DAL.dll
+C:\Users\денис\RiderProjects\OrderSystem\DAL\obj\Debug\net9.0\refint\DAL.dll
+C:\Users\денис\RiderProjects\OrderSystem\DAL\obj\Debug\net9.0\DAL.pdb
+C:\Users\денис\RiderProjects\OrderSystem\DAL\obj\Debug\net9.0\DAL.genruntimeconfig.cache
+C:\Users\денис\RiderProjects\OrderSystem\DAL\obj\Debug\net9.0\ref\DAL.dll

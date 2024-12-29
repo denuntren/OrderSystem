@@ -1,0 +1,18 @@
+# Rider
+.idea/
+
+# ASP.NET Core
+bin/
+obj/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+# Logs
+*.log
+
+# Build results
+out/
