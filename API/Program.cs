@@ -17,6 +17,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
+// Додавання CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:3000") 
+                   .AllowAnyMethod()  // Дозволяємо будь-який HTTP-метод
+                   .AllowAnyHeader();  // Дозволяємо будь-які заголовки
+        });
+});
+
 // Налаштування JSON серіалізації для кращої обробки циклічних посилань
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -51,7 +63,16 @@ builder.Services.AddAuthentication("Bearer")
         };
     });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+});
+
+
 var app = builder.Build();
+
+// Налаштування CORS перед іншими middleware
+app.UseCors("AllowLocalhost");
 
 if (app.Environment.IsDevelopment())
 {

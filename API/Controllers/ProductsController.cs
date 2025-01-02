@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace OrderSystem.Api.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
@@ -19,6 +18,7 @@ namespace OrderSystem.Api.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllProducts()
         {
             try
@@ -33,6 +33,7 @@ namespace OrderSystem.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetProductById(int id)
         {
 
@@ -53,6 +54,7 @@ namespace OrderSystem.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddProduct(ProductCreateDto productDto)
         {
             if (!ModelState.IsValid)
@@ -72,6 +74,7 @@ namespace OrderSystem.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductUpdateDto productDto)
         {
             if (!ModelState.IsValid)
@@ -93,6 +96,7 @@ namespace OrderSystem.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             try

@@ -20,6 +20,7 @@ public class User
     [Required] 
     public string PasswordHash { get; set; }
 
-    [JsonIgnore] 
-    public ICollection<Order> Orders { get; set; } = new List<Order>();
+    [JsonIgnore] public ICollection<Order> Orders { get; set; } = new List<Order>();
+
+    public string Role { get; set; } = "User";
 }

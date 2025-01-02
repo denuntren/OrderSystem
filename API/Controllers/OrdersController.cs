@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace OrderSystem.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class OrdersController : ControllerBase

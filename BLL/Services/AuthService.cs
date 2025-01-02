@@ -31,7 +31,8 @@ public class AuthService : IAuthService
         {
             Username = username,
             Email = email,
-            PasswordHash = passwordHash
+            PasswordHash = passwordHash,
+            Role = "User"
         };
 
         _context.Users.Add(user);
@@ -57,7 +58,8 @@ public class AuthService : IAuthService
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.Role, user.Role)
         };
         
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));

@@ -4,6 +4,11 @@
 # ASP.NET Core
 bin/
 obj/
+wwwroot/
+*.db
+appsettings.Development.json
+appsettings.*.json
+*.sql
 
 # User-specific files
 *.user
@@ -16,3 +21,23 @@ obj/
 
 # Build results
 out/
+
+# Node.js
+node_modules/
+
+# Build output
+build/
+dist/
+
+# Log files
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# IDE files
+.vscode/
+.idea/
+
+# Environment variables
+.env
+.env.*.local
