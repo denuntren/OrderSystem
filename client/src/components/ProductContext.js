@@ -1,6 +1,7 @@
 ﻿// ProductsContext.js
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
+import { toast } from "react-toastify";
 
 const ProductsContext = createContext();
 
@@ -20,6 +21,7 @@ export const ProductsProvider = ({ children, authToken }) => {
                 .then((response) => {
                     if (Array.isArray(response.data.$values)) {
                         setProducts(response.data.$values);
+                        toast.success("Список товарів завантажено!");
                     } else {
                         console.error('Products data is not an array:', response.data);
                     }
@@ -27,6 +29,7 @@ export const ProductsProvider = ({ children, authToken }) => {
                 })
                 .catch((error) => {
                     console.error('Failed to load products:', error);
+                    toast.error("Не вдалося завантажити список товарів.");
                     setLoading(false);
                 });
         }

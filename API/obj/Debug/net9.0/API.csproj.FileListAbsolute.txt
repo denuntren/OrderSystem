@@ -58,3 +58,4 @@ C:\Users\денис\RiderProjects\OrderSystem\API\bin\Debug\net9.0\Microsoft.Ide
 C:\Users\денис\RiderProjects\OrderSystem\API\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\денис\RiderProjects\OrderSystem\API\bin\Debug\net9.0\Newtonsoft.Json.dll
 C:\Users\денис\RiderProjects\OrderSystem\API\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\денис\RiderProjects\OrderSystem\API\obj\Debug\net9.0\API.sourcelink.json

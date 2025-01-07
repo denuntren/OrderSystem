@@ -1,12 +1,14 @@
 ﻿import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // Імпортуємо useNavigate
 import "./RegisterForm.css";
-
-const RegisterForm = ({ goToLogin }) => {
+import { toast } from "react-toastify";
+const RegisterForm = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [userName, setUserName] = useState("");
     const [errors, setErrors] = useState({});
+    const navigate = useNavigate(); // Ініціалізуємо навігатор
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -31,10 +33,11 @@ const RegisterForm = ({ goToLogin }) => {
                 userName,
             })
             .then(() => {
-                // Redirect to login form after successful registration
-                goToLogin();
+                toast.success("Успішна реєстрація!");
+                navigate("/login"); // Використовуємо navigate для переходу на форму логіну
             })
             .catch((error) => {
+                toast.error("Помилка.");
                 const serverMessage = error.response?.data?.message || "Сталася помилка.";
                 setErrors((prev) => ({ ...prev, server: serverMessage }));
             });
@@ -78,9 +81,13 @@ const RegisterForm = ({ goToLogin }) => {
                     Зареєструватися
                 </button>
                 <div className="mt-2">
-                    <a href="#" onClick={goToLogin}>
-                        Вже є аккаунт? Увійти
-                    </a>
+                    <button
+                        type="button"
+                        className="btn btn-link"
+                        onClick={() => navigate("/login")} // Перехід на логін
+                    >
+                        Вже є акаунт? Увійти
+                    </button>
                 </div>
             </form>
         </div>

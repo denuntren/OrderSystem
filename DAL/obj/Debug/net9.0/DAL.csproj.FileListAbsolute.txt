@@ -12,3 +12,4 @@ C:\Users\денис\RiderProjects\OrderSystem\DAL\obj\Debug\net9.0\refint\DAL.dl
 C:\Users\денис\RiderProjects\OrderSystem\DAL\obj\Debug\net9.0\DAL.pdb
 C:\Users\денис\RiderProjects\OrderSystem\DAL\obj\Debug\net9.0\DAL.genruntimeconfig.cache
 C:\Users\денис\RiderProjects\OrderSystem\DAL\obj\Debug\net9.0\ref\DAL.dll
+C:\Users\денис\RiderProjects\OrderSystem\DAL\obj\Debug\net9.0\DAL.sourcelink.json

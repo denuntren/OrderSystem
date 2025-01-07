@@ -1,22 +1,31 @@
 ﻿import React, { useState } from "react";
 import axios from "axios";
-
-const LoginForm = ({ setAuthToken, goToRegister }) => {
+import { useNavigate } from "react-router-dom"; // Додаємо useNavigate для переходу
+import { toast } from "react-toastify";
+const LoginForm = ({ setAuthToken }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const navigate = useNavigate(); // Ініціалізуємо навігатор
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setErrorMessage(""); // Clear previous error
+        setErrorMessage("");
+
         axios
             .post("http://localhost:5131/api/auth/login", { email, password })
             .then((response) => {
+                toast.success("Успішний вхід!");
                 setAuthToken(response.data.token);
             })
             .catch((error) => {
+                toast.error("Помилка.");
                 setErrorMessage("Невірний email або пароль.");
             });
+    };
+
+    const goToRegister = () => {
+        navigate("/register"); // Перехід до сторінки реєстрації
     };
 
     return (
@@ -52,7 +61,7 @@ const LoginForm = ({ setAuthToken, goToRegister }) => {
                 <div className="mt-3 text-center">
                     <button
                         className="btn btn-link"
-                        onClick={goToRegister}
+                        onClick={goToRegister} // Викликаємо goToRegister для переходу на реєстрацію
                         style={{ textDecoration: "none" }}
                     >
                         Зареєструватися

@@ -13,3 +13,4 @@ C:\Users\денис\RiderProjects\OrderSystem\BLL\obj\Debug\net9.0\BLL.dll
 C:\Users\денис\RiderProjects\OrderSystem\BLL\obj\Debug\net9.0\refint\BLL.dll
 C:\Users\денис\RiderProjects\OrderSystem\BLL\obj\Debug\net9.0\BLL.pdb
 C:\Users\денис\RiderProjects\OrderSystem\BLL\obj\Debug\net9.0\ref\BLL.dll
+C:\Users\денис\RiderProjects\OrderSystem\BLL\obj\Debug\net9.0\BLL.sourcelink.json

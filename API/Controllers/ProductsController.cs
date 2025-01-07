@@ -1,10 +1,9 @@
 ﻿using BLL.Dto;
 using BLL.Interface;
-using DAL.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace OrderSystem.Api.Controllers
+namespace OrderSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -31,7 +30,7 @@ namespace OrderSystem.Api.Controllers
                 return StatusCode(500, new { Message = "An error occurred while retrieving products.", Details = ex.Message });
             }
         }
-
+        
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetProductById(int id)
@@ -101,7 +100,7 @@ namespace OrderSystem.Api.Controllers
         {
             try
             {
-                var product = await _productService.GetProductByIdAsync(id);  // додано await
+                var product = await _productService.GetProductByIdAsync(id);
                 if (product == null)
                     return NotFound(new { Message = $"Product with ID {id} not found." });
 
