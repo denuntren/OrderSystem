@@ -36,7 +36,7 @@ export const ProductsProvider = ({ children, authToken }) => {
     }, [authToken]);
 
     return (
-        <ProductsContext.Provider value={{ products, setProducts, loading }}>
+        <ProductsContext.Provider value={{ products, setProducts, loading, setLoading }}>
             {children}
         </ProductsContext.Provider>
     );

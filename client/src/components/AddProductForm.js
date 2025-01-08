@@ -27,7 +27,7 @@ const AddProduct = () => {
 
         if (!formData.name || !formData.price || !formData.stockQuantity || !formData.description) {
             setError("Будь ласка, заповніть усі обов'язкові поля.");
-            toast.error("Заповніть усі поля!"); // Додаємо сповіщення про помилку
+            toast.error("Заповніть усі поля!");
             return;
         }
 

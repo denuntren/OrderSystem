@@ -3,11 +3,19 @@ import { useProducts } from "./ProductContext";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useCart } from "./CartContext";
 
 const ProductsList = () => {
     const { products, setProducts, loading } = useProducts();
     const [authToken] = useState(localStorage.getItem("authToken"));
     const [search, setSearch] = useState("");
+    const [priceRange, setPriceRange] = useState([0, Infinity]);
+    const { addToCart } = useCart();
+
+    const handleAddToCart = (product) => {
+        addToCart(product, 1); // Додаємо товар у кошик
+        toast.success(`Товар "${product.name}" додано до кошика!`);
+    };
 
     const handleDelete = (id) => {
         if (!window.confirm("Ви впевнені, що хочете видалити цей товар?")) {
@@ -28,9 +36,13 @@ const ProductsList = () => {
             });
     };
 
-    const filteredProducts = products.filter((product) =>
-        product.name.toLowerCase().includes(search.toLowerCase())
-    );
+    // Фільтрація товарів
+    const filteredProducts = products.filter((product) => {
+        const matchesSearch = product.name.toLowerCase().includes(search.toLowerCase());
+        const matchesPrice =
+            product.price >= priceRange[0] && product.price <= priceRange[1];
+        return matchesSearch && matchesPrice;
+    });
 
     if (loading) {
         return (
@@ -51,16 +63,40 @@ const ProductsList = () => {
                 </Link>
             </div>
 
-            <div className="mb-4">
-                <input
-                    type="text"
-                    placeholder="Пошук товару..."
-                    className="form-control"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
+            {/* Форма фільтрації */}
+            <div className="row mb-4">
+                <div className="col-md-4">
+                    <input
+                        type="text"
+                        placeholder="Пошук товару..."
+                        className="form-control"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
+                <div className="col-md-4">
+                    <div className="d-flex">
+                        <input
+                            type="number"
+                            placeholder="Мін. ціна"
+                            className="form-control me-2"
+                            onChange={(e) =>
+                                setPriceRange([+e.target.value || 0, priceRange[1]])
+                            }
+                        />
+                        <input
+                            type="number"
+                            placeholder="Макс. ціна"
+                            className="form-control"
+                            onChange={(e) =>
+                                setPriceRange([priceRange[0], +e.target.value || Infinity])
+                            }
+                        />
+                    </div>
+                </div>
             </div>
 
+            {/* Список товарів */}
             <div className="row">
                 {filteredProducts.length > 0 ? (
                     filteredProducts.map((product) => (
@@ -85,7 +121,8 @@ const ProductsList = () => {
                                         <strong>Ціна:</strong> {product.price}₴
                                     </p>
                                     <p className="card-text">
-                                        <strong>Кількість в наявності:</strong> {product.stockQuantity}
+                                        <strong>Кількість в наявності:</strong>{" "}
+                                        {product.stockQuantity}
                                     </p>
                                     <div className="d-flex justify-content-between">
                                         <Link
@@ -107,6 +144,12 @@ const ProductsList = () => {
                                             Видалити
                                         </button>
                                     </div>
+                                    <button
+                                        onClick={() => handleAddToCart(product)}
+                                        className="btn btn-primary mt-3 w-100"
+                                    >
+                                        Додати в кошик
+                                    </button>
                                 </div>
                             </div>
                         </div>
