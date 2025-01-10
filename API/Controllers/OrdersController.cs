@@ -4,6 +4,7 @@ using DAL.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace OrderSystem.Controllers
 {
     //[Authorize]
@@ -30,10 +31,23 @@ namespace OrderSystem.Controllers
             return Ok(order);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetOrdersAsync()
+        {
+            try
+            {
+                var orders = await _orderService.GetOrdersAsync();
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error while getting orders.", Details = ex.Message});
+            }
+        }
+        
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] OrderCreateDto orderCreateDto)
         {
-            
             if (orderCreateDto == null)
                 return BadRequest("Invalid order data.");
 
@@ -42,15 +56,26 @@ namespace OrderSystem.Controllers
 
             foreach (var item in orderCreateDto.Items)
             {
-                var product = await _productService.GetProductByIdAsync(item.ProductId);
+                // Використання нового методу для отримання повної сутності Product
+                var product = await _productService.GetProductEntityByIdAsync(item.ProductId);
                 if (product == null)
                     return BadRequest($"Product with ID {item.ProductId} not found.");
 
+                if (product.StockQuantity < item.Quantity)
+                    return BadRequest($"Not enough stock for product ID {item.ProductId}.");
+
+                // Оновлення кількості товару
+                product.StockQuantity -= item.Quantity;
+                await _productService.UpdateProductAsync(product.Id, new ProductUpdateDto
+                {
+                    StockQuantity = product.StockQuantity
+                });
+
                 var orderItem = new OrderItem
                 {
-                    ProductId = item.ProductId,
+                    ProductId = product.Id,
                     Quantity = item.Quantity,
-                    Price = product.Price  // Витягуємо ціну з продукту
+                    Price = product.Price
                 };
 
                 totalAmount += orderItem.Quantity * orderItem.Price;
@@ -68,6 +93,8 @@ namespace OrderSystem.Controllers
             await _orderService.CreateOrderAsync(order);
             return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
         }
+
+
 
 
         [HttpPut("{id}")]

@@ -30,6 +30,23 @@ namespace OrderSystem.Controllers
                 return StatusCode(500, new { Message = "An error occurred while retrieving products.", Details = ex.Message });
             }
         }
+
+        [HttpGet("filtered")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetFilteredProducts([FromQuery] decimal? minPrice,
+            [FromQuery] decimal maxPrice, [FromQuery] string? name)
+        {
+            try
+            {
+                var products = await _productService.GetFilteredProductAsync(minPrice, maxPrice, name);
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error while filtering products.", Details = ex.Message });
+            }
+        }
+
         
         [HttpGet("{id}")]
         [AllowAnonymous]

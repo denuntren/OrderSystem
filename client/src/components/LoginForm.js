@@ -2,7 +2,7 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // Додаємо useNavigate для переходу
 import { toast } from "react-toastify";
-const LoginForm = ({ setAuthToken }) => {
+const LoginForm = ({ setAuthToken, setUserId }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -17,12 +17,16 @@ const LoginForm = ({ setAuthToken }) => {
             .then((response) => {
                 toast.success("Успішний вхід!");
                 setAuthToken(response.data.token);
+                setUserId(response.data.userId);
+                localStorage.setItem("authToken", response.data.token);
+                localStorage.setItem("UserId", response.data.userId);
+                window.location.reload();
             })
             .catch((error) => {
-                toast.error("Помилка.");
                 setErrorMessage("Невірний email або пароль.");
             });
     };
+
 
     const goToRegister = () => {
         navigate("/register"); // Перехід до сторінки реєстрації
