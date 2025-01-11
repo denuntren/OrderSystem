@@ -8,13 +8,12 @@ const RegisterForm = () => {
     const [password, setPassword] = useState("");
     const [userName, setUserName] = useState("");
     const [errors, setErrors] = useState({});
-    const navigate = useNavigate(); // Ініціалізуємо навігатор
+    const navigate = useNavigate();
 
     const handleSubmit = (event) => {
         event.preventDefault();
         setErrors({});
 
-        // Client-side validation
         if (!email.includes("@")) {
             setErrors((prev) => ({ ...prev, email: "Невірний формат email." }));
             return;
@@ -25,7 +24,6 @@ const RegisterForm = () => {
             return;
         }
 
-        // Send data to the server
         axios
             .post("http://localhost:5131/api/auth/register", {
                 email,
@@ -34,7 +32,7 @@ const RegisterForm = () => {
             })
             .then(() => {
                 toast.success("Успішна реєстрація!");
-                navigate("/login"); // Використовуємо navigate для переходу на форму логіну
+                navigate("/login");
             })
             .catch((error) => {
                 toast.error("Помилка.");
@@ -84,7 +82,7 @@ const RegisterForm = () => {
                     <button
                         type="button"
                         className="btn btn-link"
-                        onClick={() => navigate("/login")} // Перехід на логін
+                        onClick={() => navigate("/login")}
                     >
                         Вже є акаунт? Увійти
                     </button>

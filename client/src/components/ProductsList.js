@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useCart } from "./CartContext";
+import "./ProductList.css";
 
 const ProductsList = () => {
     const { products, setProducts, loading } = useProducts();
@@ -13,7 +14,7 @@ const ProductsList = () => {
     const { addToCart } = useCart();
 
     const handleAddToCart = (product) => {
-        addToCart(product, 1); // Додаємо товар у кошик
+        addToCart(product, 1);
         toast.success(`Товар "${product.name}" додано до кошика!`);
     };
 
@@ -36,7 +37,6 @@ const ProductsList = () => {
             });
     };
 
-    // Фільтрація товарів
     const filteredProducts = products.filter((product) => {
         const matchesSearch = product.name.toLowerCase().includes(search.toLowerCase());
         const matchesPrice =
@@ -64,35 +64,34 @@ const ProductsList = () => {
             </div>
 
             {/* Форма фільтрації */}
-            <div className="row mb-4">
-                <div className="col-md-4">
+            <div className="filter-container mb-4">
+                <div className="search-box">
                     <input
                         type="text"
                         placeholder="Пошук товару..."
-                        className="form-control"
+                        className="form-control search-input"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
-                <div className="col-md-4">
-                    <div className="d-flex">
-                        <input
-                            type="number"
-                            placeholder="Мін. ціна"
-                            className="form-control me-2"
-                            onChange={(e) =>
-                                setPriceRange([+e.target.value || 0, priceRange[1]])
-                            }
-                        />
-                        <input
-                            type="number"
-                            placeholder="Макс. ціна"
-                            className="form-control"
-                            onChange={(e) =>
-                                setPriceRange([priceRange[0], +e.target.value || Infinity])
-                            }
-                        />
-                    </div>
+                <div className="price-range">
+                    <input
+                        type="number"
+                        placeholder="Мін. ціна"
+                        className="form-control price-input"
+                        onChange={(e) =>
+                            setPriceRange([+e.target.value || 0, priceRange[1]])
+                        }
+                    />
+                    <span className="price-separator">-</span>
+                    <input
+                        type="number"
+                        placeholder="Макс. ціна"
+                        className="form-control price-input"
+                        onChange={(e) =>
+                            setPriceRange([priceRange[0], +e.target.value || Infinity])
+                        }
+                    />
                 </div>
             </div>
 

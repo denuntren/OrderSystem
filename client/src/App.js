@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { CartProvider, useCart } from "./components/CartContext";
 import Orders from "./components/Orders";
+import { jwtDecode } from "jwt-decode";
 
 const App = () => {
     const [authToken, setAuthToken] = useState(localStorage.getItem("authToken"));
@@ -23,47 +24,23 @@ const App = () => {
     const { clearCart } = useCart();
 
     useEffect(() => {
-        const storedAuthToken = localStorage.getItem("authToken");
-
-        if (storedAuthToken) {
-            try {
-                const decodedToken = JSON.parse(atob(storedAuthToken.split(".")[1]));
-                const newUserId = decodedToken.sub;
-                setAuthToken(storedAuthToken);
-                setUserId(newUserId);
-                localStorage.setItem("UserId", newUserId);
-            } catch (error) {
-                console.error("Invalid token");
-                handleLogout();
-            }
-        } else {
-            setAuthToken(null);
-            setUserId(null);
+        if (!authToken && !userId) {
+            handleLogout();
         }
-    }, []);
-
-    const fetchCartData = () => {
-        console.log("Fetching cart data...");
-    };
-
-    const fetchProducts = () => {
-        console.log("Fetching product data...");
-    };
-
-    const navigateToCart = () => {
-        navigate("/cart");
-        fetchCartData();
-    };
-
-    const navigateToProducts = () => {
-        navigate("/products");
-        fetchProducts();
-    };
+    }, [authToken, userId]);
 
     const handleLogin = (token) => {
+        const decodedToken = jwtDecode(token);
+
         setAuthToken(token);
+        setUserId(decodedToken.UserId);
+
         localStorage.setItem("authToken", token);
-        fetchProducts();
+        localStorage.setItem("UserId", decodedToken.UserId);
+
+        window.dispatchEvent(new Event("storage"));
+
+        toast.success("Вхід успішний!");
         navigate("/products");
     };
 
@@ -73,7 +50,6 @@ const App = () => {
 
         setAuthToken(null);
         setUserId(null);
-        clearCart();
 
         toast.success("Ви успішно вийшли з системи!");
         navigate("/login");
@@ -90,15 +66,22 @@ const App = () => {
                             <div>
                                 {location.pathname === "/cart" ? (
                                     <button
-                                        onClick={navigateToProducts}
+                                        onClick={() => navigate("/products")}
                                         className="btn btn-secondary btn-sm me-2"
                                     >
                                         Повернутись до списку товарів
                                     </button>
+                                ) : location.pathname === "/orders" ? (
+                                    <button
+                                        onClick={() => navigate("/products")}
+                                        className="btn btn-secondary btn-sm me-2"
+                                    >
+                                        Повернутись до товарів
+                                    </button>
                                 ) : (
                                     <>
                                         <button
-                                            onClick={navigateToCart}
+                                            onClick={() => navigate("/cart")}
                                             className="btn btn-secondary btn-sm me-2"
                                         >
                                             Перейти до кошика
@@ -119,49 +102,51 @@ const App = () => {
                     </header>
 
                     <Routes>
-                    <Route path="/products/add" element={<AddProduct />} />
-                    <Route
-                        path="/products/edit/:id"
-                        element={<EditProductForm authToken={authToken} />}
-                    />
-                    <Route path="/products/detail/:id" element={<ProductDetail />} />
-                    <Route
-                        path="/cart"
-                        element={
-                            <ProtectedRoute>
-                                <Cart />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/products"
-                        element={authToken ? <ProductsList /> : <Navigate to="/login" replace />}
-                    />
-                    <Route
-                        path="/orders"
-                        element={
-                            <ProtectedRoute>
-                                <Orders />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/login"
-                        element={
-                            authToken ? (
-                                <Navigate to="/products" replace />
-                            ) : (
-                                <LoginForm setAuthToken={handleLogin} />
-                            )
-                        }
-                    />
-                    <Route path="/register" element={<RegisterForm />} />
-                    <Route
-                        path="/"
-                        element={authToken ? <ProductsList /> : <Navigate to="/login" />}
-                    />
-                </Routes>
-            </div>
+                        <Route path="/products/add" element={<AddProduct />} />
+                        <Route path="/register" element={<RegisterForm />} />
+                        <Route
+                            path="/products/edit/:id"
+                            element={<EditProductForm authToken={authToken} />}
+                        />
+                        <Route path="/products/detail/:id" element={<ProductDetail />} />
+                        <Route
+                            path="/cart"
+                            element={
+                                <ProtectedRoute>
+                                    <Cart />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/products"
+                            element={authToken ? <ProductsList /> : <Navigate to="/login" replace />}
+                        />
+                        <Route
+                            path="/orders"
+                            element={
+                                <ProtectedRoute>
+                                    <Orders />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/login"
+                            element={
+                                authToken ? (
+                                    <Navigate to="/products" replace />
+                                ) : (
+                                    <LoginForm setAuthToken={handleLogin} />
+                                )
+                            }
+                        />
+                        <Route path="/register" element={<RegisterForm />} />
+                        <Route
+                            path="/"
+                            element={authToken ? <ProductsList /> : <Navigate to="/login" />}
+                        />
+                        <Route path="*" element={<h1>Сторінка не знайдена</h1>} />
+                    </Routes>
+                </div>
             </ProductsProvider>
         </CartProvider>
     );

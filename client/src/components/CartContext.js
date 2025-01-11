@@ -2,30 +2,38 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 
-// Створення контексту для кошика
 const CartContext = createContext();
 
-// Хук для доступу до контексту
 export const useCart = () => useContext(CartContext);
 
-// Провайдер контексту кошика
 export const CartProvider = ({ children }) => {
-    const [cartItems, setCartItems] = useState([]);
-    const [userId, setUserId] = useState(localStorage.getItem("UserId"));
-    const [authToken, setAuthToken] = useState(localStorage.getItem("authToken"));
+    // Завантажуємо кошик із localStorage або створюємо порожній масив
+    const [cartItems, setCartItems] = useState(() => {
+        const savedCart = localStorage.getItem("cartItems");
+        return savedCart ? JSON.parse(savedCart) : [];
+    });
 
+    const [userId, setUserId] = useState(localStorage.getItem("UserId") || null);
+    const [authToken, setAuthToken] = useState(localStorage.getItem("authToken") || null);
+
+    // Зберігаємо кошик у localStorage при зміні
     useEffect(() => {
-        const storedAuthToken = localStorage.getItem("authToken");
-        const storedUserId = localStorage.getItem("UserId");
+        localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    }, [cartItems]);
 
-        if (storedAuthToken && !userId) {
-            const decodedToken = JSON.parse(atob(storedAuthToken.split('.')[1]));
-            const newUserId = decodedToken.sub;
-            setAuthToken(storedAuthToken);
-            setUserId(newUserId);
-            localStorage.setItem("UserId", newUserId);
-        }
-    }, [userId, authToken]);
+    // Синхронізуємо userId та authToken з localStorage
+    useEffect(() => {
+        const handleStorageChange = () => {
+            setAuthToken(localStorage.getItem("authToken"));
+            setUserId(localStorage.getItem("UserId"));
+        };
+
+        window.addEventListener("storage", handleStorageChange);
+
+        return () => {
+            window.removeEventListener("storage", handleStorageChange);
+        };
+    }, []);
 
     const addToCart = (product, quantity = 1) => {
         setCartItems((prevItems) => {
@@ -42,39 +50,24 @@ export const CartProvider = ({ children }) => {
     };
 
     const removeFromCart = (productId) => {
-        setCartItems((prevItems) =>
-            prevItems.filter((item) => item.id !== productId)
-        );
+        setCartItems((prevItems) => prevItems.filter((item) => item.id !== productId));
     };
 
-    const updateQuantity = (productId, quantity) => {
-        setCartItems((prevItems) =>
-            prevItems.map((item) =>
-                item.id === productId ? { ...item, quantity } : item
-            )
-        );
-    };
-
-    // Очищення кошика
     const clearCart = () => {
         setCartItems([]);
+        localStorage.removeItem("cartItems"); // Очищаємо localStorage
     };
 
     const purchaseCart = async (orderData) => {
-        if (!authToken) {
-            toast.error("Ви не авторизовані. Будь ласка, увійдіть у систему.");
-            return;
-        }
-
-        if (cartItems.length === 0) {
-            toast.error("Кошик порожній. Додайте товари перед покупкою.");
+        if (!authToken || !userId) {
+            toast.error("Користувач не авторизований.");
             return;
         }
 
         try {
             const response = await axios.post(
                 "http://localhost:5131/api/orders",
-                { ...orderData, UserId: userId },
+                { ...orderData, userId },
                 {
                     headers: {
                         Authorization: `Bearer ${authToken}`,
@@ -86,11 +79,10 @@ export const CartProvider = ({ children }) => {
                 toast.success("Замовлення успішно оформлено!");
                 clearCart();
             } else {
-                toast.error("Не вдалося оформити замовлення. Спробуйте ще раз.");
+                toast.error("Не вдалося оформити замовлення.");
             }
         } catch (error) {
-            console.error("Помилка оформлення замовлення:", error);
-            toast.error("Помилка під час оформлення замовлення.");
+            toast.error("Помилка при оформленні замовлення.");
         }
     };
 
@@ -100,7 +92,6 @@ export const CartProvider = ({ children }) => {
                 cartItems,
                 addToCart,
                 removeFromCart,
-                updateQuantity,
                 clearCart,
                 purchaseCart,
                 userId,

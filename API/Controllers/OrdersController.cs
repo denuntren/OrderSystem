@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace OrderSystem.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class OrdersController : ControllerBase
@@ -94,9 +94,30 @@ namespace OrderSystem.Controllers
             return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
         }
 
-
-
-
+        [HttpGet("user")]
+        public async Task<IActionResult> GetUserOrdersAsync()
+        {
+            try
+            {
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "UserId");
+                if (userIdClaim == null)
+                    return Unauthorized();
+                
+                var userId = int.Parse(userIdClaim.Value);
+                var orders = await _orderService.GetOrderByUserIdAsync(userId);
+                
+                if (!orders.Any())
+                {
+                    return NotFound("Not orders found.");
+                }
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error while getting orders.", Details = ex.Message });
+            }
+        }
+        
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateOrder(int id, [FromBody] Order order)
         {

@@ -1,35 +1,38 @@
 ﻿import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Додаємо useNavigate для переходу
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+
 const LoginForm = ({ setAuthToken, setUserId }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    const navigate = useNavigate(); // Ініціалізуємо навігатор
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setErrorMessage("");
 
-        axios
-            .post("http://localhost:5131/api/auth/login", { email, password })
-            .then((response) => {
-                toast.success("Успішний вхід!");
-                setAuthToken(response.data.token);
-                setUserId(response.data.userId);
-                localStorage.setItem("authToken", response.data.token);
-                localStorage.setItem("UserId", response.data.userId);
-                window.location.reload();
-            })
-            .catch((error) => {
-                setErrorMessage("Невірний email або пароль.");
+        try {
+            const response = await axios.post("http://localhost:5131/api/auth/login", {
+                email,
+                password,
             });
-    };
 
+            const { token } = response.data;
+            const decodedToken = JSON.parse(atob(token.split(".")[1]));
 
-    const goToRegister = () => {
-        navigate("/register"); // Перехід до сторінки реєстрації
+            localStorage.setItem("authToken", token);
+            localStorage.setItem("UserId", decodedToken.UserId);
+
+            setAuthToken(token);
+            setUserId(decodedToken.UserId);
+
+            toast.success("Успішний вхід!");
+            navigate("/products");
+        } catch (error) {
+            setErrorMessage("Невірний email або пароль.");
+        }
     };
 
     return (
@@ -64,11 +67,11 @@ const LoginForm = ({ setAuthToken, setUserId }) => {
                 </form>
                 <div className="mt-3 text-center">
                     <button
+                        type="button"
                         className="btn btn-link"
-                        onClick={goToRegister} // Викликаємо goToRegister для переходу на реєстрацію
-                        style={{ textDecoration: "none" }}
+                        onClick={() => navigate("/register")}
                     >
-                        Зареєструватися
+                        Немає акаунта? Зареєструватися
                     </button>
                 </div>
             </div>

@@ -3,30 +3,25 @@ import { useCart } from "./CartContext";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useProducts } from "./ProductContext";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
-    const { cartItems, removeFromCart, updateQuantity, totalPrice, purchaseCart, userId, authToken, clearCart } = useCart();
+    const { cartItems, removeFromCart, updateQuantity, clearCart, userId, authToken } = useCart();
+    const { fetchProducts } = useProducts();
+    const navigate = useNavigate();
     const [isAuthorized, setIsAuthorized] = useState(false);
-    const { fetchProducts, products } = useProducts();
-    const navigate = useNavigate(); 
 
     const getTotalPrice = () => {
         return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
     };
 
     useEffect(() => {
-        console.log("Auth token:", authToken);
-        console.log("User ID:", userId);
-
         if (!authToken || !userId) {
             toast.error("Користувач не авторизований.");
-            console.log("Користувач не авторизований.");
-        } else {
-            setIsAuthorized(true);
-            console.log("Користувач авторизований.");
+            navigate("/login");
         }
-    }, [authToken, userId]);
+    }, [authToken, userId, navigate]);
+
 
     const handlePurchase = async () => {
         if (!authToken || !userId) {
@@ -49,19 +44,22 @@ const Cart = () => {
                 },
             });
 
-            console.log("Response Status:", response.status);
-            console.log("Response Data:", response.data);
-
-            if (response.status === 201) {
+            if (response.status === 201 || response.status === 204) {
                 clearCart();
-                fetchProducts();
+                localStorage.removeItem("cartItems");
                 toast.success("Замовлення успішно оформлено!");
                 navigate("/products");
             } else {
-                toast.error(`Не вдалося оформити замовлення. Статус: ${response.status}`);
+                toast.error("Не вдалося оформити замовлення. Будь ласка, спробуйте ще раз.");
             }
         } catch (error) {
             console.error("Помилка при оформленні замовлення:", error);
+
+            if (error.response?.status === 401) {
+                toast.error("Ви не авторизовані. Будь ласка, увійдіть у систему.");
+            } else {
+                toast.error(`Помилка під час оформлення замовлення: ${error.message}`);
+            }
         }
     };
 
@@ -86,13 +84,11 @@ const Cart = () => {
                             />
                             <button
                                 className="btn btn-danger ms-3"
-                                onClick={() => {
-                                    console.log("Видалення товару з кошика:", item.name);
-                                    removeFromCart(item.id);
-                                }}
+                                onClick={() => removeFromCart(item.id)}
                             >
                                 Видалити
                             </button>
+
                         </div>
                     ))}
                     <h3>Загальна сума: {getTotalPrice()}₴</h3>
