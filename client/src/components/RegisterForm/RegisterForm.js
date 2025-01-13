@@ -1,6 +1,6 @@
 ﻿import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Імпортуємо useNavigate
+import { useNavigate } from "react-router-dom"; 
 import "./RegisterForm.css";
 import { toast } from "react-toastify";
 const RegisterForm = () => {

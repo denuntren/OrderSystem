@@ -1,24 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { Route, Routes, Navigate, useNavigate, useLocation } from "react-router-dom";
-import LoginForm from "./components/LoginForm";
-import RegisterForm from "./components/RegisterForm/RegisterForm";
-import ProductsList from "./components/ProductsList";
-import EditProductForm from "./components/EditProductForm";
-import ProductDetail from "./components/ProductDetail";
-import { ProductsProvider } from "./components/ProductContext";
-import AddProduct from "./components/AddProductForm";
-import { ToastContainer } from "react-toastify";
+import { motion } from "framer-motion";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Cart from "./components/Cart";
-import { toast } from "react-toastify";
-import ProtectedRoute from "./components/ProtectedRoute";
-import { CartProvider, useCart } from "./components/CartContext";
-import Orders from "./components/Orders";
+import { CartProvider, useCart } from "./components/Cart/CartContext";
+import { ProductsProvider } from "./components/Products/ProductContext";
+import Header from "./components/Shared/Header";
+import Footer from "./components/Shared/Footer";
+import LoginForm from "./components/Shared/LoginForm";
+import RegisterForm from "./components/RegisterForm/RegisterForm";
+import ProductsList from "./components/Products/ProductsList";
+import EditProductForm from "./components/Products/EditProductForm";
+import AddProduct from "./components/Products/AddProductForm";
+import ProductDetail from "./components/Products/ProductDetail";
+import Cart from "./components/Cart/Cart";
+import Orders from "./components/Orders/Orders";
+import AdminOrders from "./components/Orders/AdminOrders";
+import ProtectedRoute from "./components/Shared/ProtectedRoute";
 import { jwtDecode } from "jwt-decode";
+import "./App.css";
 
 const App = () => {
     const [authToken, setAuthToken] = useState(localStorage.getItem("authToken"));
     const [userId, setUserId] = useState(localStorage.getItem("UserId"));
+    const [userRole, setUserRole] = useState(null);
     const navigate = useNavigate();
     const location = useLocation();
     const { clearCart } = useCart();
@@ -26,6 +31,17 @@ const App = () => {
     useEffect(() => {
         if (!authToken && !userId) {
             handleLogout();
+        } else if (authToken) {
+            try {
+                const decodedToken = jwtDecode(authToken);
+                setUserRole(
+                    decodedToken[
+                        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                        ] || decodedToken.role
+                );
+            } catch (error) {
+                console.error("Помилка декодування токена:", error);
+            }
         }
     }, [authToken, userId]);
 
@@ -34,9 +50,12 @@ const App = () => {
 
         setAuthToken(token);
         setUserId(decodedToken.UserId);
+        setUserRole(decodedToken.role);
 
         localStorage.setItem("authToken", token);
         localStorage.setItem("UserId", decodedToken.UserId);
+
+        clearCart();
 
         window.dispatchEvent(new Event("storage"));
 
@@ -45,11 +64,13 @@ const App = () => {
     };
 
     const handleLogout = () => {
+        clearCart();
         localStorage.removeItem("authToken");
         localStorage.removeItem("UserId");
 
         setAuthToken(null);
         setUserId(null);
+        setUserRole(null);
 
         toast.success("Ви успішно вийшли з системи!");
         navigate("/login");
@@ -58,95 +79,165 @@ const App = () => {
     return (
         <CartProvider>
             <ProductsProvider authToken={authToken}>
-                <div className="container mt-4">
-                    <ToastContainer position="top-right" autoClose={3000} />
-                    <header className="d-flex justify-content-between align-items-center mb-4">
-                        <h2 className="text-primary">{authToken ? "Магазин" : "Вхід до системи"}</h2>
-                        {authToken && (
-                            <div>
-                                {location.pathname === "/cart" ? (
-                                    <button
-                                        onClick={() => navigate("/products")}
-                                        className="btn btn-secondary btn-sm me-2"
-                                    >
-                                        Повернутись до списку товарів
-                                    </button>
-                                ) : location.pathname === "/orders" ? (
-                                    <button
-                                        onClick={() => navigate("/products")}
-                                        className="btn btn-secondary btn-sm me-2"
-                                    >
-                                        Повернутись до товарів
-                                    </button>
-                                ) : (
-                                    <>
-                                        <button
-                                            onClick={() => navigate("/cart")}
-                                            className="btn btn-secondary btn-sm me-2"
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="app-wrapper"
+                >
+                    <Header authToken={authToken} userRole={userRole} handleLogout={handleLogout} />
+                    <div className="content">
+                        <div className="container mt-4">
+                            <ToastContainer position="top-right" autoClose={3000} />
+                            <Routes>
+                                <Route
+                                    path="/products"
+                                    element={
+                                        authToken ? (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -20 }}
+                                                transition={{ duration: 0.5 }}
+                                            >
+                                                <ProductsList />
+                                            </motion.div>
+                                        ) : (
+                                            <Navigate to="/login" replace />
+                                        )
+                                    }
+                                />
+                                <Route
+                                    path="/products/add"
+                                    element={
+                                        <ProtectedRoute roles={["Admin"]}>
+                                            <motion.div
+                                                initial={{ scale: 0.9 }}
+                                                animate={{ scale: 1 }}
+                                                exit={{ scale: 0.9 }}
+                                                transition={{ duration: 0.5 }}
+                                            >
+                                                <AddProduct />
+                                            </motion.div>
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/products/edit/:id"
+                                    element={
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ duration: 0.5 }}
                                         >
-                                            Перейти до кошика
-                                        </button>
-                                        <button
-                                            onClick={() => navigate("/orders")}
-                                            className="btn btn-info btn-sm me-2"
+                                            <EditProductForm authToken={authToken} />
+                                        </motion.div>
+                                    }
+                                />
+                                <Route
+                                    path="/products/detail/:id"
+                                    element={
+                                        <motion.div
+                                            initial={{ y: 20, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            exit={{ y: -20, opacity: 0 }}
+                                            transition={{ duration: 0.5 }}
                                         >
-                                            Ваші замовлення
-                                        </button>
-                                    </>
-                                )}
-                                <button onClick={handleLogout} className="btn btn-danger btn-sm">
-                                    Вийти
-                                </button>
-                            </div>
-                        )}
-                    </header>
-
-                    <Routes>
-                        <Route path="/products/add" element={<AddProduct />} />
-                        <Route path="/register" element={<RegisterForm />} />
-                        <Route
-                            path="/products/edit/:id"
-                            element={<EditProductForm authToken={authToken} />}
-                        />
-                        <Route path="/products/detail/:id" element={<ProductDetail />} />
-                        <Route
-                            path="/cart"
-                            element={
-                                <ProtectedRoute>
-                                    <Cart />
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route
-                            path="/products"
-                            element={authToken ? <ProductsList /> : <Navigate to="/login" replace />}
-                        />
-                        <Route
-                            path="/orders"
-                            element={
-                                <ProtectedRoute>
-                                    <Orders />
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route
-                            path="/login"
-                            element={
-                                authToken ? (
-                                    <Navigate to="/products" replace />
-                                ) : (
-                                    <LoginForm setAuthToken={handleLogin} />
-                                )
-                            }
-                        />
-                        <Route path="/register" element={<RegisterForm />} />
-                        <Route
-                            path="/"
-                            element={authToken ? <ProductsList /> : <Navigate to="/login" />}
-                        />
-                        <Route path="*" element={<h1>Сторінка не знайдена</h1>} />
-                    </Routes>
-                </div>
+                                            <ProductDetail />
+                                        </motion.div>
+                                    }
+                                />
+                                <Route
+                                    path="/cart"
+                                    element={
+                                        <ProtectedRoute>
+                                            <motion.div
+                                                initial={{ scale: 0.9 }}
+                                                animate={{ scale: 1 }}
+                                                exit={{ scale: 0.9 }}
+                                                transition={{ duration: 0.5 }}
+                                            >
+                                                <Cart />
+                                            </motion.div>
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/orders"
+                                    element={
+                                        <ProtectedRoute>
+                                            <motion.div
+                                                initial={{ x: -50, opacity: 0 }}
+                                                animate={{ x: 0, opacity: 1 }}
+                                                exit={{ x: 50, opacity: 0 }}
+                                                transition={{ duration: 0.5 }}
+                                            >
+                                                <Orders />
+                                            </motion.div>
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/admin/orders"
+                                    element={
+                                        <ProtectedRoute roles={["Admin"]}>
+                                            <motion.div
+                                                initial={{ y: -20 }}
+                                                animate={{ y: 0 }}
+                                                transition={{ duration: 0.5 }}
+                                            >
+                                                <AdminOrders />
+                                            </motion.div>
+                                        </ProtectedRoute>
+                                    }
+                                />
+                                <Route
+                                    path="/login"
+                                    element={
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ duration: 0.5 }}
+                                        >
+                                            <LoginForm setAuthToken={handleLogin} />
+                                        </motion.div>
+                                    }
+                                />
+                                <Route
+                                    path="/register"
+                                    element={
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ duration: 0.5 }}
+                                        >
+                                            <RegisterForm />
+                                        </motion.div>
+                                    }
+                                />
+                                <Route
+                                    path="/"
+                                    element={<Navigate to="/products" />}
+                                />
+                                <Route
+                                    path="*"
+                                    element={
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            transition={{ duration: 0.5 }}
+                                        >
+                                            <h1>Сторінка не знайдена</h1>
+                                        </motion.div>
+                                    }
+                                />
+                            </Routes>
+                        </div>
+                    </div>
+                    <Footer />
+                </motion.div>
             </ProductsProvider>
         </CartProvider>
     );

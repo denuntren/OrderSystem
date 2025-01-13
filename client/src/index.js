@@ -4,7 +4,7 @@ import "./index.css";
 import AppWrapper from "./AppWrapper";
 import reportWebVitals from "./reportWebVitals";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { CartProvider } from "./components/CartContext";
+import { CartProvider } from "./components/Cart/CartContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -15,5 +15,4 @@ root.render(
     </React.StrictMode>
 );
 
-// Якщо хочете вимірювати продуктивність:
 reportWebVitals();

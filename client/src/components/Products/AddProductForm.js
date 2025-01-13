@@ -2,17 +2,19 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+
 const AddProduct = () => {
     const [formData, setFormData] = useState({
-        name: '',
-        description: '',
-        price: '',
-        stockQuantity: '',
+        name: "",
+        description: "",
+        price: "",
+        stockQuantity: "",
+        imageUrl: "",
     });
 
     const [error, setError] = useState("");
     const navigate = useNavigate();
-    const [authToken, setAuthToken] = useState(localStorage.getItem("authToken"));
+    const authToken = localStorage.getItem("authToken");
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -46,10 +48,10 @@ const AddProduct = () => {
     };
 
     return (
-        <div className="container">
-            <h2>Додати новий товар</h2>
+        <div className="container mt-5">
+            <h2 className="text-center text-success mb-4">Додати новий товар</h2>
             {error && <div className="alert alert-danger">{error}</div>}
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="shadow p-4 rounded bg-light">
                 <div className="mb-3">
                     <label htmlFor="name" className="form-label">
                         Назва товару
@@ -93,20 +95,46 @@ const AddProduct = () => {
                     />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="imageUrl" className="form-label">
+                    <label htmlFor="description" className="form-label">
                         Опис товару
                     </label>
-                    <input
-                        type="text"
-                        id="descript"
+                    <textarea
+                        id="description"
                         name="description"
                         className="form-control"
                         value={formData.description}
                         onChange={handleChange}
+                        rows="3"
                     />
                 </div>
-                <button type="submit" className="btn btn-primary">
-                    Зберегти
+                <div className="mb-3">
+                    <label htmlFor="imageUrl" className="form-label">
+                        URL зображення
+                    </label>
+                    <input
+                        type="text"
+                        id="imageUrl"
+                        name="imageUrl"
+                        className="form-control"
+                        value={formData.imageUrl}
+                        onChange={handleChange}
+                    />
+                    {formData.imageUrl && (
+                        <div className="mt-3 text-center">
+                            <img
+                                src={formData.imageUrl}
+                                alt="Preview"
+                                className="img-thumbnail"
+                                style={{
+                                    maxWidth: "300px",
+                                    borderRadius: "10px",
+                                }}
+                            />
+                        </div>
+                    )}
+                </div>
+                <button type="submit" className="btn btn-success w-100">
+                    Додати товар
                 </button>
             </form>
         </div>

@@ -7,7 +7,6 @@ const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
-    // Завантажуємо кошик із localStorage або створюємо порожній масив
     const [cartItems, setCartItems] = useState(() => {
         const savedCart = localStorage.getItem("cartItems");
         return savedCart ? JSON.parse(savedCart) : [];
@@ -16,12 +15,10 @@ export const CartProvider = ({ children }) => {
     const [userId, setUserId] = useState(localStorage.getItem("UserId") || null);
     const [authToken, setAuthToken] = useState(localStorage.getItem("authToken") || null);
 
-    // Зберігаємо кошик у localStorage при зміні
     useEffect(() => {
         localStorage.setItem("cartItems", JSON.stringify(cartItems));
     }, [cartItems]);
-
-    // Синхронізуємо userId та authToken з localStorage
+    
     useEffect(() => {
         const handleStorageChange = () => {
             setAuthToken(localStorage.getItem("authToken"));
@@ -35,6 +32,20 @@ export const CartProvider = ({ children }) => {
         };
     }, []);
 
+    useEffect(() => {
+        if (!authToken || !userId) {
+            setCartItems([]);
+            localStorage.removeItem("cartItems");
+        }
+    }, [authToken, userId]);
+
+    useEffect(() => {
+        const storedUserId = localStorage.getItem("UserId");
+        if (userId !== storedUserId) {
+            clearCart();
+        }
+    }, [userId]);
+    
     const addToCart = (product, quantity = 1) => {
         setCartItems((prevItems) => {
             const existingItem = prevItems.find((item) => item.id === product.id);
@@ -55,8 +66,10 @@ export const CartProvider = ({ children }) => {
 
     const clearCart = () => {
         setCartItems([]);
-        localStorage.removeItem("cartItems"); // Очищаємо localStorage
+        localStorage.removeItem("cartItems");
+        console.log("Кошик очищено");
     };
+
 
     const purchaseCart = async (orderData) => {
         if (!authToken || !userId) {

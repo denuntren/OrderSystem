@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import "./Orders.css"; // Додаємо файл стилів
+import "./Orders.css"; 
 
 const Orders = () => {
     const [orders, setOrders] = useState([]);

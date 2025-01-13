@@ -32,6 +32,7 @@ namespace OrderSystem.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetOrdersAsync()
         {
             try

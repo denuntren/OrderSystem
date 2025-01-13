@@ -1,17 +1,18 @@
-﻿import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { useProducts } from './ProductContext';
+﻿import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useProducts } from "./ProductContext";
 
 const EditProductForm = ({ authToken }) => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { products, setProducts } = useProducts();
     const [product, setProduct] = useState({
-        name: '',
-        description: '',
-        price: '',
-        stockQuantity: '',
+        name: "",
+        description: "",
+        price: "",
+        stockQuantity: "",
+        imageUrl: "",
     });
 
     useEffect(() => {
@@ -27,7 +28,7 @@ const EditProductForm = ({ authToken }) => {
                     setProduct(response.data);
                 })
                 .catch((error) => {
-                    console.error('Error fetching product:', error);
+                    console.error("Error fetching product:", error);
                 });
         }
     }, [id, products, authToken]);
@@ -50,29 +51,28 @@ const EditProductForm = ({ authToken }) => {
                     description: product.description,
                     price: product.price,
                     stockQuantity: product.stockQuantity,
+                    imageUrl: product.imageUrl,
                 },
                 {
                     headers: { Authorization: `Bearer ${authToken}` },
                 }
             )
             .then(() => {
-                // Оновлюємо список товарів у контексті
                 const updatedProducts = products.map((p) =>
                     p.id === parseInt(id) ? { ...p, ...product } : p
                 );
                 setProducts(updatedProducts);
-
-                navigate('/products');
+                navigate("/products");
             })
             .catch((error) => {
-                console.error('Error updating product:', error);
+                console.error("Error updating product:", error);
             });
     };
 
     return (
-        <div className="container">
-            <h2>Редагувати товар</h2>
-            <form onSubmit={handleSubmit}>
+        <div className="container mt-5">
+            <h2 className="text-center text-primary mb-4">Редагувати товар</h2>
+            <form onSubmit={handleSubmit} className="shadow p-4 rounded bg-light">
                 <div className="mb-3">
                     <label htmlFor="name" className="form-label">
                         Назва
@@ -97,6 +97,7 @@ const EditProductForm = ({ authToken }) => {
                         className="form-control"
                         value={product.description}
                         onChange={handleChange}
+                        rows="3"
                         required
                     />
                 </div>
@@ -128,7 +129,33 @@ const EditProductForm = ({ authToken }) => {
                         required
                     />
                 </div>
-                <button type="submit" className="btn btn-primary">
+                <div className="mb-3">
+                    <label htmlFor="imageUrl" className="form-label">
+                        URL зображення
+                    </label>
+                    <input
+                        type="text"
+                        id="imageUrl"
+                        name="imageUrl"
+                        className="form-control"
+                        value={product.imageUrl}
+                        onChange={handleChange}
+                    />
+                    {product.imageUrl && (
+                        <div className="mt-3 text-center">
+                            <img
+                                src={product.imageUrl}
+                                alt="Preview"
+                                className="img-thumbnail"
+                                style={{
+                                    maxWidth: "300px",
+                                    borderRadius: "10px",
+                                }}
+                            />
+                        </div>
+                    )}
+                </div>
+                <button type="submit" className="btn btn-primary w-100">
                     Оновити товар
                 </button>
             </form>
