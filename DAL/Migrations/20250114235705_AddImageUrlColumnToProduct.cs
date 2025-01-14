@@ -5,7 +5,7 @@
 namespace DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class AddImageUrlToProduct : Migration
+    public partial class AddImageUrlColumnToProduct : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

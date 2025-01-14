@@ -1,29 +1,37 @@
-﻿# Base image для виконання
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+﻿FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
+EXPOSE 8080
 
-# Build image для збірки проєкту
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+# Додаємо ping
+RUN apt-get update && apt-get install -y iputils-ping
+
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# Копіюємо проєкти і відновлюємо залежності
-COPY ["API/API.csproj", "API/"]
-COPY ["DAL/DAL.csproj", "DAL/"]
-COPY ["BLL/BLL.csproj", "BLL/"]
-RUN dotnet restore "API/API.csproj"
+# Копіюємо .csproj файли
+COPY ../BLL/BLL.csproj ./BLL/
+COPY ../DAL/DAL.csproj ./DAL/
+COPY ./API/API.csproj ./API/
 
-# Копіюємо весь код і збираємо проєкт
-COPY . .
-WORKDIR "/src/API"
-RUN dotnet build "API.csproj" -c Release -o /app/build
+# Відновлення залежностей
+RUN dotnet restore ./API/API.csproj
 
-# Publish image для створення виконуваного пакета
+# Копіюємо код проєкту, крім тестів
+COPY ../BLL ./BLL/
+COPY ../DAL ./DAL/
+COPY ./API ./API/
+
+# Виключаємо папку з тестами
+RUN rm -rf /src/API/Tests
+
+WORKDIR /src/API
+
+# Збірка проєкту (без тестів)
+RUN dotnet build API.csproj -c Release -o /app/build
+
 FROM build AS publish
-RUN dotnet publish "API.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish API.csproj -c Release -o /app/publish /p:UseAppHost=false
 
-# Final image для запуску
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
