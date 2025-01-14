@@ -2,13 +2,13 @@
 using DAL.Interface;
 using Microsoft.EntityFrameworkCore;
 
-namespace DAL.Repositories
+namespace DAL.Repository
 {
-    public class OrderRepository : IRepository<Order>
+    public class OrderRepository : Repository<Order>, IOrderRepository
     {
         private readonly AppDbContext _context;
 
-        public OrderRepository(AppDbContext context)
+        public OrderRepository(AppDbContext context) : base(context)
         {
             _context = context;
         }
@@ -17,15 +17,24 @@ namespace DAL.Repositories
         {
             return await _context.Orders
                 .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Product)  // Завантажуємо також продукцію для кожного OrderItem
+                .ThenInclude(oi => oi.Product)
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<Order>> GetOrdersByUserIdWithDetailsAsync(int userId)
+        {
+            return await _context.Orders
+                .Where(o => o.UserId == userId)
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .ToListAsync();
+        }
+        
         public async Task<Order> GetByIdAsync(int id)
         {
             return await _context.Orders
                 .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Product)  // Завантажуємо також продукцію для кожного OrderItem
+                .ThenInclude(oi => oi.Product)
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
 
@@ -50,5 +59,6 @@ namespace DAL.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
     }
 }

@@ -6,9 +6,9 @@ namespace BLL.Services
 {
     public class OrderService : IOrderService
     {
-        private readonly IRepository<Order> _orderRepository;
+        private readonly IOrderRepository _orderRepository;
 
-        public OrderService(IRepository<Order> orderRepository)
+        public OrderService(IOrderRepository orderRepository)
         {
             _orderRepository = orderRepository;
         }
@@ -17,27 +17,29 @@ namespace BLL.Services
         {
             return await _orderRepository.GetByIdAsync(orderId);
         }
-
+        
         public async Task<IEnumerable<Order>> GetOrdersAsync()
         {
             return await _orderRepository.GetAllAsync();
         }
 
+        public async Task<IEnumerable<Order>> GetOrderByUserIdAsync(int userId)
+        {
+            return await _orderRepository.GetOrdersByUserIdWithDetailsAsync(userId);
+        }
+        
         public async Task CreateOrderAsync(Order order)
         {
-            // Логіка для створення замовлення
             await _orderRepository.AddAsync(order);
         }
 
         public async Task UpdateOrderAsync(Order order)
         {
-            // Логіка для оновлення замовлення
             await _orderRepository.UpdateAsync(order);
         }
 
         public async Task DeleteOrderAsync(int orderId)
         {
-            // Логіка для видалення замовлення
             await _orderRepository.DeleteAsync(orderId);
         }
     }

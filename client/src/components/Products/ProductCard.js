@@ -3,15 +3,16 @@
 const ProductCard = ({ product }) => {
     return (
         <div className="card" style={{ width: '18rem' }}>
-            <div style={{ height: '200px', overflow: 'hidden' }}>
+            <div style={{height: "200px", overflow: "hidden"}}>
                 <img
-                    src={product.image || 'https://via.placeholder.com/150'}
+                    src={product.image || "https://via.placeholder.com/150"}
                     className="card-img-top"
                     alt={product.name}
                     style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        maxHeight: "200px",
                     }}
                 />
             </div>

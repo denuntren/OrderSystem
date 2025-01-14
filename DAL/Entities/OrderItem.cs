@@ -19,7 +19,6 @@ public class OrderItem
     public int ProductId { get; set; }
 
     [ForeignKey(nameof(ProductId))]
-    [JsonIgnore]
     public Product Product { get; set; }
 
     [Required]

@@ -135,7 +135,9 @@ const ProductsList = () => {
                                     style={{
                                         width: "100%",
                                         height: "200px",
-                                        objectFit: "cover",
+                                        objectFit: "contain",
+                                        maxHeight: "200px",
+                                        maxWidth: "100%",
                                     }}
                                 />
                                 <div className="card-body">
@@ -163,8 +165,8 @@ const ProductsList = () => {
                                                     Редагувати
                                                 </Link>
                                                 <motion.button
-                                                    whileHover={{ scale: 1.1 }}
-                                                    whileTap={{ scale: 0.9 }}
+                                                    whileHover={{scale: 1.1}}
+                                                    whileTap={{scale: 0.9}}
                                                     className="btn btn-danger btn-sm"
                                                     onClick={() => handleDelete(product.id)}
                                                 >
@@ -174,8 +176,8 @@ const ProductsList = () => {
                                         )}
                                     </div>
                                     <motion.button
-                                        whileHover={{ scale: 1.1 }}
-                                        whileTap={{ scale: 0.9 }}
+                                        whileHover={{scale: 1.1}}
+                                        whileTap={{scale: 0.9}}
                                         className="btn btn-primary mt-3 w-100"
                                         onClick={() => handleAddToCart(product)}
                                     >

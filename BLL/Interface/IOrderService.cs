@@ -8,5 +8,6 @@ public interface IOrderService
     Task<IEnumerable<Order>> GetOrdersAsync();
     Task CreateOrderAsync(Order order);
     Task UpdateOrderAsync(Order order);
+    Task<IEnumerable<Order>> GetOrderByUserIdAsync(int userId);
     Task DeleteOrderAsync(int orderId);
 }

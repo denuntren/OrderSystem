@@ -23,6 +23,10 @@ public class Product
         [Required(ErrorMessage = "StockQuantity is required.")]
         [Range(0, int.MaxValue, ErrorMessage = "StockQuantity cannot be negative.")]
         public int StockQuantity { get; set; }
+        
         [JsonIgnore]
         public List<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        
+        [MaxLength(255, ErrorMessage = "ImageUrl cannot exceed 255 characters.")]
+        public string? ImageUrl { get; set; }
 }

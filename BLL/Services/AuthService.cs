@@ -24,7 +24,7 @@ public class AuthService : IAuthService
     public async Task<User> RegisterAsync(string username, string email, string password)
     {
         if (_context.Users.Any(e => e.Email == email))
-            throw new Exception("Email is alredy in use");
+            throw new Exception("Email is already in use");
         
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
         var user = new User
@@ -59,7 +59,8 @@ public class AuthService : IAuthService
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.Role, user.Role)
+            new Claim(ClaimTypes.Role, user.Role),
+            new Claim("UserId", user.Id.ToString())
         };
         
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));

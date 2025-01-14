@@ -1,4 +1,6 @@
-﻿namespace DAL.Interface
+﻿using System.Linq.Expressions;
+
+namespace DAL.Interface
 {
     public interface IRepository<T> where T : class
     {
@@ -7,5 +9,6 @@
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(int id);
+        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
     }
 }
