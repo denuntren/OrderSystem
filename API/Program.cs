@@ -19,34 +19,37 @@ builder.Logging.AddConsole();
 // Додавання CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowLocalhost",
+    options.AddPolicy("AllowAll",
         builder =>
         {
-            builder.WithOrigins("http://localhost:3000") 
-                   .AllowAnyMethod()  // Дозволяємо будь-який HTTP-метод
-                   .AllowAnyHeader();  // Дозволяємо будь-які заголовки
+            builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
         });
 });
 
-// Налаштування JSON серіалізації для кращої обробки циклічних посилань
+// JSON серіалізація для обробки циклічних посилань
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
     });
 
+// Налаштування бази даних
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
+// Реєстрація залежностей
 builder.Services.AddRepositories();
 builder.Services.AddServices();
 
+// AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// JWT-аутентифікація
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer(options =>
@@ -68,21 +71,28 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
 });
 
-
+// Побудова програми
 var app = builder.Build();
 
-// Налаштування CORS перед іншими middleware
-app.UseCors("AllowLocalhost");
+// CORS
+app.UseCors("AllowAll");
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Swagger
+app.UseSwagger();
+app.UseSwaggerUI();
 
+// HTTPS
 app.UseHttpsRedirection();
+
+// Статичні файли та SPA fallback
+app.UseStaticFiles();
+app.MapFallbackToFile("index.html");
+
+// Аутентифікація та авторизація
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Контролери
 app.MapControllers();
 
 app.Run();
