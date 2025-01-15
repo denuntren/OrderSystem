@@ -1,7 +1,7 @@
 ﻿// src/api/api.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5131/api';
+const API_URL = 'https://ordersystem-vejq.onrender.com';
 
 const api = axios.create({
     baseURL: API_URL,
