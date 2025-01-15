@@ -1,25 +1,32 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-USER $APP_UID
+﻿# Базовий образ для ASP.NET Core
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 8081
 
+# Образ для побудови
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["API/API.csproj", "API/"]
-COPY ["DAL/DAL.csproj", "DAL/"]
-COPY ["BLL/BLL.csproj", "BLL/"]
-RUN dotnet restore "API/API.csproj"
+
+# Копіюємо .csproj файли
+COPY ./API/API.csproj ./API/
+
+# Відновлення залежностей
+RUN dotnet restore ./API/API.csproj
+
+# Копіюємо код проєкту
 COPY . .
-WORKDIR "/src/API"
-RUN dotnet build "API.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+WORKDIR /src/API
+
+# Збірка проєкту
+RUN dotnet build API.csproj -c Release -o /app/build
 
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish API.csproj -c Release -o /app/publish /p:UseAppHost=false
 
+# Контейнер для роботи з API
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
 ENTRYPOINT ["dotnet", "API.dll"]
